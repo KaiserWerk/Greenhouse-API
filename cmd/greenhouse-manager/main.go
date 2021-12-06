@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/KaiserWerk/Greenhouse-Manager/internal/middleware"
 	"net/http"
 	"os"
 	"os/signal"
@@ -24,15 +25,18 @@ func main() {
 
 	router := mux.NewRouter()
 
-	apiRouter := router.PathPrefix("/api/v1").Subrouter()
-	apiRouter.HandleFunc("receive", handler.ReceiveHandler).Methods(http.MethodPost)
+	h := handler.HttpHandler{}
 
-	router.HandleFunc("/", handler.IndexHandler)
+	apiRouter := router.PathPrefix("/api/v1").Subrouter()
+	apiRouter.Use(middleware.Auth)
+	apiRouter.HandleFunc("receive", h.ReceiveHandler).Methods(http.MethodPost)
+
+	router.HandleFunc("/", h.IndexHandler)
 
 	srv := http.Server{
-		Handler: router,
-		Addr: fmt.Sprintf(":%d", port),
-		ReadTimeout: 20 * time.Second,
+		Handler:      router,
+		Addr:         fmt.Sprintf(":%d", port),
+		ReadTimeout:  20 * time.Second,
 		WriteTimeout: 20 * time.Second,
 	}
 
@@ -45,7 +49,7 @@ func main() {
 
 		// do other stuff
 
-		ctx, cancel := context.WithTimeout(context.Background(), 30 * time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		if err := srv.Shutdown(ctx); err != nil {
@@ -62,5 +66,3 @@ func main() {
 
 	fmt.Println("server shutdown complete")
 }
-
-
