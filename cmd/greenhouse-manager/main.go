@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/KaiserWerk/Greenhouse-Manager/internal/influx"
 	"github.com/KaiserWerk/Greenhouse-Manager/internal/middleware"
 	"net/http"
 	"os"
@@ -23,9 +24,10 @@ func main() {
 	flag.IntVar(&port, "port", 47336, "The port to listen on")
 	flag.Parse()
 
-	router := mux.NewRouter()
+	defer influx.Close()
 
 	h := handler.HttpHandler{}
+	router := mux.NewRouter()
 
 	apiRouter := router.PathPrefix("/api/v1").Subrouter()
 	apiRouter.Use(middleware.Auth)
@@ -36,8 +38,8 @@ func main() {
 	srv := http.Server{
 		Handler:      router,
 		Addr:         fmt.Sprintf(":%d", port),
-		ReadTimeout:  20 * time.Second,
-		WriteTimeout: 20 * time.Second,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	exitCh := make(chan os.Signal)
@@ -54,14 +56,14 @@ func main() {
 
 		if err := srv.Shutdown(ctx); err != nil {
 			fmt.Printf("could not shut down server: %s\n", err.Error())
-			os.Exit(-1)
+			return
 		}
 	}()
 
 	fmt.Printf("server listening on :%d...\n", port)
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		fmt.Printf("error starting server: %s\n", err.Error())
-		os.Exit(-2)
+		return
 	}
 
 	fmt.Println("server shutdown complete")
