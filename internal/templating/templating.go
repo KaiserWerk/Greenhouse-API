@@ -1,4 +1,4 @@
-package templates
+package templating
 
 import (
 	"embed"
@@ -16,7 +16,7 @@ func ExecuteTemplate(w io.Writer, file string, data interface{}) error {
 		return err
 	}
 
-	layout := template.Must(template.New("_layout.gohtml").Parse(string(layoutContent)))//.Funcs(funcMap)
+	layout := template.Must(template.New("_layout.gohtml").Parse(string(layoutContent))) //.Funcs(funcMap)
 
 	content, err := templateFS.ReadFile("templates/content/" + file)
 	if err != nil {
