@@ -41,6 +41,7 @@ func main() {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
+	srv.SetKeepAlivesEnabled(false)
 
 	exitCh := make(chan os.Signal)
 	signal.Notify(exitCh, os.Interrupt)
