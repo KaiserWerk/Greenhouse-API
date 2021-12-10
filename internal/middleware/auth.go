@@ -1,17 +1,15 @@
 package middleware
 
 import (
-	"net/http"
-	"os"
-
 	"github.com/KaiserWerk/Greenhouse-Manager/internal/caching"
 	"github.com/KaiserWerk/Greenhouse-Manager/internal/config"
+	"net/http"
 )
 
 func Auth(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		caching.SetLastAccess()
-		envKey := os.Getenv(config.EnvKey)
+		envKey := config.GetKey()
 		headerKey := r.Header.Get(config.HeaderKey)
 
 		if envKey == "" || headerKey == "" {

@@ -22,7 +22,11 @@ func main() {
 	flag.IntVar(&port, "port", 47336, "The port to listen on")
 	flag.Parse()
 
-	defer storage.Close()
+	defer func() {
+		if err := storage.Close(); err != nil {
+			fmt.Println("close error:", err.Error())
+		}
+	}()
 
 	h := handler.HttpHandler{}
 	router := mux.NewRouter()

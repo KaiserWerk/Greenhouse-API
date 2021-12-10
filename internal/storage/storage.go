@@ -18,8 +18,7 @@ var (
 func init() {
 	t := time.Now()
 	year = t.Year()
-	err = openFile(year)
-	if err != nil {
+	if err := openFile(year); err != nil {
 		panic("could not open CSV file for writing: " + err.Error())
 	}
 }
@@ -33,7 +32,7 @@ func openFile(year int) error {
 	return nil
 }
 
-func WriteMeasurement(m *entity.Measurement) error {
+func WriteMeasurement(m entity.Measurement) error {
 	t := time.Now()
 	if year != t.Year() {
 		Close()
@@ -41,18 +40,37 @@ func WriteMeasurement(m *entity.Measurement) error {
 			panic("could not re-open CSV file for writing: " + err.Error())
 		}
 	}
-	return writer.Write(stringifyMeasurement(m))
+	err = writer.Write(stringifyMeasurement(m))
+	if err != nil {
+		return fmt.Errorf("error while writing: %s", err.Error())
+	}
+	writer.Flush()
+	err = writer.Error()
+	if err != nil {
+		return fmt.Errorf("error while flushing: %s", err.Error())
+	}
+
+	return nil
 }
 
-func stringifyMeasurement(m *entity.Measurement) []string {
-	s := make([]string, 3)
-	s[0] = fmt.Sprintf("%d", &m.AirTemperature)
-	s[1] = fmt.Sprintf("%d", &m.Humidity)
-	s[2] = fmt.Sprintf("%d", &m.WaterLevel)
+func stringifyMeasurement(m entity.Measurement) []string {
+	s := make([]string, 4)
+	s[0] = time.Now().Format(time.RFC3339)
+	s[1] = fmt.Sprintf("%.1f", m.AirTemperature)
+	s[2] = fmt.Sprintf("%.1f", m.Humidity)
+	s[3] = fmt.Sprintf("%d", m.WaterLevel)
 	return s
 }
 
-func Close() {
+func Close() error {
 	writer.Flush()
-	f.Close()
+	err := writer.Error()
+	if err != nil {
+		return fmt.Errorf("error while writing/flushing: %s", err.Error())
+	}
+	err = f.Close()
+	if err != nil {
+		return fmt.Errorf("error while closing file: %s", err.Error())
+	}
+	return nil
 }
