@@ -2,10 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"github.com/KaiserWerk/Greenhouse-Manager/internal/storage"
 	"net/http"
 
 	"github.com/KaiserWerk/Greenhouse-Manager/internal/entity"
-	"github.com/KaiserWerk/Greenhouse-Manager/internal/influx"
 )
 
 func (h HttpHandler) ReceiveHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,6 +15,6 @@ func (h HttpHandler) ReceiveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = r.Body.Close()
 
-	influx.InsertMeasurement(m)
+	storage.WriteMeasurement(&m)
 	w.WriteHeader(http.StatusCreated)
 }

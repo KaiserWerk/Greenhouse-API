@@ -4,16 +4,14 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/KaiserWerk/Greenhouse-Manager/internal/influx"
+	"github.com/KaiserWerk/Greenhouse-Manager/internal/handler"
 	"github.com/KaiserWerk/Greenhouse-Manager/internal/middleware"
+	"github.com/KaiserWerk/Greenhouse-Manager/internal/storage"
+	"github.com/gorilla/mux"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/KaiserWerk/Greenhouse-Manager/internal/handler"
-
-	"github.com/gorilla/mux"
 )
 
 var (
@@ -24,14 +22,14 @@ func main() {
 	flag.IntVar(&port, "port", 47336, "The port to listen on")
 	flag.Parse()
 
-	defer influx.Close()
+	defer storage.Close()
 
 	h := handler.HttpHandler{}
 	router := mux.NewRouter()
 
 	apiRouter := router.PathPrefix("/api/v1").Subrouter()
 	apiRouter.Use(middleware.Auth)
-	apiRouter.HandleFunc("receive", h.ReceiveHandler).Methods(http.MethodPost)
+	apiRouter.HandleFunc("/receive", h.ReceiveHandler).Methods(http.MethodPost)
 
 	router.HandleFunc("/", h.IndexHandler)
 
@@ -41,14 +39,14 @@ func main() {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-	srv.SetKeepAlivesEnabled(false)
+	//srv.SetKeepAlivesEnabled(false)
 
 	exitCh := make(chan os.Signal)
 	signal.Notify(exitCh, os.Interrupt)
 
 	go func() {
 		<-exitCh
-		fmt.Println("server shutdown started")
+		fmt.Println("server shutdown initiated")
 
 		// do other stuff
 

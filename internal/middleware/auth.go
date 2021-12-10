@@ -4,11 +4,13 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/KaiserWerk/Greenhouse-Manager/internal/caching"
 	"github.com/KaiserWerk/Greenhouse-Manager/internal/config"
 )
 
 func Auth(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		caching.SetLastAccess()
 		envKey := os.Getenv(config.EnvKey)
 		headerKey := r.Header.Get(config.HeaderKey)
 
