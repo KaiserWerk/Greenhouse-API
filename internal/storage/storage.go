@@ -58,7 +58,7 @@ func stringifyMeasurement(m entity.Measurement) []string {
 	s[0] = time.Now().Format(time.RFC3339)
 	s[1] = fmt.Sprintf("%.1f", m.AirTemperature)
 	s[2] = fmt.Sprintf("%.1f", m.Humidity)
-	s[3] = fmt.Sprintf("%d", m.WaterLevel)
+	s[3] = fmt.Sprintf("%.1f", m.WaterLevel)
 	return s
 }
 
