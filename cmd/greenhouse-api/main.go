@@ -4,14 +4,16 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/KaiserWerk/Greenhouse-Manager/internal/handler"
-	"github.com/KaiserWerk/Greenhouse-Manager/internal/middleware"
-	"github.com/KaiserWerk/Greenhouse-Manager/internal/storage"
-	"github.com/gorilla/mux"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/KaiserWerk/Greenhouse-Manager/internal/handler"
+	"github.com/KaiserWerk/Greenhouse-Manager/internal/middleware"
+	"github.com/KaiserWerk/Greenhouse-Manager/internal/storage"
+
+	"github.com/gorilla/mux"
 )
 
 var (
